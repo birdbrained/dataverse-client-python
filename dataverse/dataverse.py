@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import requests
+import logging
 
 from dataverse.dataset import Dataset
 from dataverse.exceptions import (
@@ -8,6 +9,7 @@ from dataverse.exceptions import (
 )
 from dataverse.utils import get_element, get_elements, sanitize
 
+logger = logging.get_logger(__name__)
 
 class Dataverse(object):
     def __init__(self, connection, collection):
@@ -60,7 +62,10 @@ class Dataverse(object):
         )
 
         if resp.status_code != 200:
-            raise ConnectionError('Atom entry could not be retrieved.')
+            raise ConnectionError('Atom entry could not be retrieved. The request returned {}:\n{}'.format(
+                resp.status_code,
+                resp._content
+            ))
 
         self._contents_json = resp.json()['data']
         return self._contents_json
